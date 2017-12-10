@@ -4,6 +4,7 @@ import {Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'r
 
 // after we added Card, import it
 import Card from '../components/card'
+import * as firebase from 'firebase'
 
 // PROBLEM with installing momentjs:
 // To install momentjs, we navigated to the root of our app in terminal and issued
@@ -24,15 +25,34 @@ export default class TodoMain extends Component {
      notes: [],
   }
 
+  componentDidMount(){
+    firebase.database().ref("todo").on("value", snap => {
+      res = snap.val()
+      console.log(res)
+      this.setState({notes: [res]})
+    })
+    console.log(this.state.notes)
+  }
+
   handlePress() {
     if (this.state.note) {
-      // push adds an element to array to its end
-      this.state.notes.push({
+          // save to firebase instead to array
+      const firebaseRef = firebase.database().ref("todo").push().key
+      firebase.database().ref('todo')
+      .child(firebaseRef)
+      .update({
         note: this.state.note,
-        date: moment().format("LL")
+        date: moment().format("MMMM Do YYYY")
       })
+
+      // // push adds an element to array to its end
+      // this.state.notes.push({
+      //   note: this.state.note,
+      //   date: moment().format("MMMM Do YYYY")
+      // })
       // each time you change something from state, need to call setState on it again
-      this.setState({notes: this.state.notes, note: ''})
+      //this.setState({notes: this.state.notes, note: ''})
+      this.setState({note: ''})
       console.log("notes ==> ", this.state.notes)
     }
   }
